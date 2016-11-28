@@ -1,78 +1,77 @@
-Анализатор логов postfix`а maillog
+Maillog a Postfix log analyzer
 ==================================
 
-Введение.
+Introduction.
 ---------
 
-Когда почтовый сервер обрабатывает письмо, он записывает в файл лога несколько строк. При большом почтовом трафике строки относящиеся к разным письмам перемешиваются, иногда записи относящиеся к одному письму отстоят друг от друга на несколько десятков строк. Это сильно мешает чтению логов. Чтобы решить эту проблему, в стародавние времена я написал скрипт на перле оригинальным названием maillog. Со временем в него добавлялся функционал, исправлялись ошибки. И теперь при возникновении вопросов с почтой, первое что мы делаем это запускаем этот скрипт.
+When a mail server processes an email, he writes to the log file a few lines. In large mail traffic belonging to different rows are shuffled letters, sometimes records relating to the same letter are spaced apart by several tens of rows. This greatly hinders the reading log. To solve this problem, in the old days, I wrote a script in Perl original name maillog. Over time, it added functionality, bug fixes. And now if you have any questions by e-mail, the first thing we do is run this script.
 
 
-Возможности.
+ Capabilities.
 ------------
 
-Скрипт сканирует файлы логов, группирует строки по письмам. Записи выделяются цветом в зависимости от успешности доставки, подсвечиваются адреса.
+The script scans the log files that includes lines of letters. Entries are highlighted in color depending on the success of the delivery addresses are highlighted.
 
-Есть возможность фильтрации писем по отправителю и/или отправителю, ключи -f и -t соответственно.
+It is possible to filter messages by sender and / or the sender, the -f and -t, respectively.
 
-Использую ключ -d можно задать дату или диапазон дат на которые выводить письма. Даты можно задавать в разных вариантах, например:
+By using the -d option, you can specify a date or range of dates for which to display the letter. Dates can be set in different ways, for example:
 
-12.1.2010-15.1.2010 - показать письма с 12-го по 15-е включительно. 10.01.2010- - письма прошедшие с 10-го и позже. -12.01 - обратное предыдущему варианту, 12-го и ранее. Если опущен год или месяц, то подставляется текущие. - - вообще, всё что было 1.1.2010 - за 1-е января 2010 года. По умолчанию показываются письма за сегодняшний день.
+12.1.2010-15.1.2010 - show the letter from the 12th to the 15th inclusive. 10.01.2010- - letters passed from the 10th and later. -12.01 - Contrary to the previous embodiment, the 12th and earlier. If it omitted the year or month, then the current substitutes. - - In general, all that was 1.1.2010 - for the 1st January 2010. By default, it displays the letter for today.
 
-Если есть желание увидеть только письма с ошибками, т.е. которые не были доставлены, можно использовать опцию -e.
+If you want to see only messages with errors, ie, have not been delivered, you can use -e option.
 
-Все перечисленные ключи можно использовать в любых комбинациях.
+All of these keys can be used in any combination.
 
-Есть поддержка файлов логов, сжатых после ротации.
+There is support for log files, compressed after the rotation. 
 
-
-Настройка.
+ Setting.
 ----------
 
-Настроек не много :)
-В начале скрипта есть строка "my $filePattern='/var/log/mail/mail*.log';" в ней задается шаблон имени для логов почтового сервера.
+Settings are not many :)
+At the beginning of the script is a string "my $ filePattern = '/var/log/mail/mail*.log';" it is given the name of the template for the mail server logs.
 
 
-Ограничения.
+ Limitations.
 ------------
 
-В логах пишется только дата и месяц, поэтому невозможно фильтровать письма по году. Вы всегда можете опускать год в опции -d. Если у кого есть мысли, пишите мне.
+The logs are written to only date and month, so it is impossible to filter emails by year. You can always omit the year in the -d option. If anyone has ideas, please contact me.
 
-У меня месяц в логе пишется по английски Jan, Feb и.т.д., если у кого-то они на русском, добавьте русские элементы в хеш %MONTHS.
+I have a month in the log is written in English Jan, Feb, etc., if someone they are Russian, Russian add elements to hash% MONTHS.
 
-Скрипт работает только с логами postfix`а. Я сейчас не помню сильно отличаются логи у других серверов, возможно реально добавить поддержку других программ.
+The script works only with logs postfix. I do not remember much different from other server logs may actually add support of other programs. 
 
-Использование (help).
+Using (help).
 --------------
 
     maillog [-d DATE] [-f FROM] [-t TO] [-e] [-h] [-V]
 
-    Показывает записи в почтовом логе для писем идущих с адреса FROM к адресу TO за период указаный в опции DATE.
+    Displays entries in the mail log for messages coming from the FROM address to the TO address for the period indicated in the DATE option.
 
-        -f  FROM    почтовый адрес отправителя (или его часть).
+        -f  FROM    e-mail address of the sender (or a portion thereof).
 
-        -t  TO      почтовый адрес получателя (или его часть).
+        -t  TO      e-mail address of the recipient (or a portion thereof).
 
-        -d  DATE    выводить отчет за указанный период, если опция пропущена выводятся записи только за текущий день.
+        -d  DATE    output report for the period, if the option is omitted entries are displayed only for the current day.
 
-            DD/MM/YY-DD/MM/YY   Полный формат:
+            DD/MM/YY-DD/MM/YY   full format :
 
-            -DD/MM/YY           Пропущена начальная дата:
-                                будут показаны записи с 1 января 1970 года.
+            -DD/MM/YY           Expected starting date:
+                                They will be shown records with January 1, 1970
 
-            DD/MM/YY-           Пропущена конечная дата:
-                                будут показаны записи до текущей даты.
+            DD/MM/YY-           Expected end date:
+                                records are displayed to the current date.
 
-            -                   Пропущена как начальная, так и конечная даты:
-                                будут показаны записи с 1 января 1970 года до
-                                текущей даты.
+            -                   Expected a start and end dates:
+                                Entries will be displayed from 1 January 1970 to
+                                current date.
 
-        -e          показывать только недоставленные сообщения.
+        -e          Show the undelivered messages.
 
-        -h          показать страницу помощи.
+        -h          Show help page.
 
-        -V          показать версию программы и лицензию.
+        -V          Show version and license.
 
 
-Лицензия GPLv2.
+License GPLv2.
 ---------------
 This program is free software; you can redistribute it and/or modify t under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2, or (at your option) any later version.
